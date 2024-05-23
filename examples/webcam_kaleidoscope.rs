@@ -1,10 +1,9 @@
-use bevaders::{fullscreen, quit, screenshot, ShaderLibraryPlugin, Webcam};
+use bevaders::{BevadersPlugin, BillBoardQuad, Webcam, WindowDimensions};
 use bevy::{
     prelude::*,
     reflect::TypePath,
     render::render_resource::{AsBindGroup, ShaderRef},
     sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle},
-    window::WindowResized,
 };
 
 fn main() {
@@ -14,20 +13,11 @@ fn main() {
         .insert_non_send_resource(Webcam::new())
         .add_plugins((
             DefaultPlugins,
-            ShaderLibraryPlugin,
+            BevadersPlugin,
             Material2dPlugin::<CustomMaterial>::default(),
         ))
         .add_systems(Startup, setup)
-        .add_systems(
-            Update,
-            (
-                quit,
-                capture,
-                screenshot,
-                fullscreen,
-                size_quad.run_if(on_event::<WindowResized>()),
-            ),
-        )
+        .add_systems(Update, capture)
         .run();
 }
 
@@ -63,31 +53,6 @@ fn setup(
         },
         BillBoardQuad,
     ));
-}
-
-#[derive(Component)]
-pub struct BillBoardQuad;
-
-#[derive(Resource, DerefMut, Deref, Default, Debug)]
-pub struct WindowDimensions(pub Vec2);
-
-pub fn size_quad(
-    windows: Query<&Window>,
-    mut query: Query<&mut Transform, With<BillBoardQuad>>,
-    mut msd: ResMut<WindowDimensions>,
-) {
-    let win = windows
-        .get_single()
-        .expect("Should be impossible to NOT get a window");
-    let (width, height) = (win.width(), win.height());
-
-    query.iter_mut().for_each(|mut transform| {
-        *msd = WindowDimensions(Vec2 {
-            x: width,
-            y: height,
-        });
-        transform.scale = Vec3::new(width, height, 1.0);
-    });
 }
 
 #[derive(Asset, TypePath, AsBindGroup, Debug, Clone)]

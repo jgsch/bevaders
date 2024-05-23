@@ -6,7 +6,7 @@ use bevy::{
         render_asset::RenderAssetUsages, render_resource::Shader,
         view::screenshot::ScreenshotManager,
     },
-    window::{PrimaryWindow, WindowMode},
+    window::{PrimaryWindow, WindowMode, WindowResized},
 };
 use image::{DynamicImage, RgbImage};
 use opencv::{
@@ -25,6 +25,23 @@ impl Plugin for ShaderLibraryPlugin {
             "common.wgsl",
             Shader::from_wgsl
         );
+    }
+}
+
+pub struct BevadersPlugin;
+
+impl Plugin for BevadersPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(WindowDimensions::default())
+            .add_plugins(ShaderLibraryPlugin)
+            .add_systems(
+                Update,
+                (
+                    quit,
+                    fullscreen,
+                    size_quad.run_if(on_event::<WindowResized>()),
+                ),
+            );
     }
 }
 
@@ -69,6 +86,31 @@ impl Default for Webcam {
     fn default() -> Self {
         Self::new()
     }
+}
+
+#[derive(Component)]
+pub struct BillBoardQuad;
+
+#[derive(Resource, DerefMut, Deref, Default, Debug)]
+pub struct WindowDimensions(pub Vec2);
+
+pub fn size_quad(
+    windows: Query<&Window>,
+    mut query: Query<&mut Transform, With<BillBoardQuad>>,
+    mut msd: ResMut<WindowDimensions>,
+) {
+    let win = windows
+        .get_single()
+        .expect("Should be impossible to NOT get a window");
+    let (width, height) = (win.width(), win.height());
+
+    query.iter_mut().for_each(|mut transform| {
+        *msd = WindowDimensions(Vec2 {
+            x: width,
+            y: height,
+        });
+        transform.scale = Vec3::new(width, height, 1.0);
+    });
 }
 
 pub fn quit(input: Res<ButtonInput<KeyCode>>) {
