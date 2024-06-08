@@ -3,10 +3,12 @@ name = "bevaders"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+webcam_gstreamer = []
+
 [dependencies]
 anyhow = "1.0.82"
 bevy = { version = "0.13.2", features = ["file_watcher", "dynamic_linking", "jpeg"] }
-image = "0.24.9"
-opencv = {  version = "0.91.3", default-features = false, features = ["videoio"]}
+opencv = { version = "0.91.3", default-features = false, features = ["videoio", "imgproc"] }
 rand = "0.8.5"
 serde = { version = "1.0.197", features = ["derive"] }

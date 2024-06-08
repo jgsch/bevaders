@@ -1,4 +1,4 @@
-use bevaders::{BevadersPlugin, BillBoardQuad, Webcam, WindowDimensions};
+use bevaders::{webcam::Webcam, BevadersPlugin, BillBoardQuad, WindowDimensions};
 use bevy::{
     prelude::*,
     reflect::TypePath,
