@@ -1,5 +1,6 @@
 use bevy::{
     asset::load_internal_asset,
+    diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
     render::{render_resource::Shader, view::screenshot::ScreenshotManager},
     window::{PrimaryWindow, WindowMode, WindowResized},
@@ -34,6 +35,12 @@ impl Plugin for BevadersPlugin {
                     size_quad.run_if(on_event::<WindowResized>()),
                 ),
             );
+
+        #[cfg(debug_assertions)] // debug/dev builds only
+        {
+            app.add_plugins(LogDiagnosticsPlugin::default());
+            app.add_plugins(FrameTimeDiagnosticsPlugin);
+        }
     }
 }
 
